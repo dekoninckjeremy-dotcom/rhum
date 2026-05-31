@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2A1F0E">
+<title>Notre Cave à Rhums</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C8922A;--amber:#E8A020;--dark:#2A1F0E;--cream:#FAF5EB;--white:#FFFFFF;--border:rgba(107,63,26,0.13);--muted:rgba(42,31,14,0.42);--serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--cream);font-family:var(--sans);}
+
+.hero{background:var(--dark);padding:36px 20px 0;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(200,146,42,0.05) 30px,rgba(200,146,42,0.05) 31px);}
+.hero-inner{position:relative;z-index:1;padding-bottom:0;}
+.hero-icon{font-size:48px;margin-bottom:12px;display:block;}
+.hero-title{font-family:var(--serif);color:#F5DFA0;font-size:28px;font-weight:500;letter-spacing:-0.5px;margin-bottom:6px;}
+.hero-sub{color:rgba(245,223,160,0.5);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:300;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,146,42,0.15);border:0.5px solid rgba(200,146,42,0.3);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(245,223,160,0.7);margin-top:14px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS dans le header */
+.hero-tabs{display:flex;justify-content:center;gap:0;margin-top:20px;position:relative;z-index:1;}
+.hero-tab{padding:10px 22px;font-size:13px;font-family:var(--sans);background:none;border:none;cursor:pointer;color:rgba(245,223,160,0.45);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:400;letter-spacing:0.3px;}
+.hero-tab.active{color:#F5DFA0;border-bottom-color:var(--gold);font-weight:500;}
+.hero-divider{height:1px;background:rgba(200,146,42,0.2);}
+
+.content{padding:20px 16px;max-width:600px;margin:0 auto;}
+.tab-section{display:none;}.tab-section.active{display:block;}
+
+/* FILTRES */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.filter-btn{background:var(--white);border:0.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-family:var(--sans);cursor:pointer;color:var(--muted);}
+.filter-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:500;}
+
+/* RHUM CARDS */
+.rhum-list{display:flex;flex-direction:column;gap:12px;}
+.rhum-card{background:var(--white);border-radius:14px;border:0.5px solid var(--border);padding:16px;display:flex;gap:14px;align-items:flex-start;box-shadow:0 1px 4px rgba(42,31,14,0.05);cursor:pointer;transition:border-color 0.15s;}
+.rhum-card:hover{border-color:var(--gold);}
+.rhum-card.out-of-stock{opacity:0.5;cursor:default;}
+.rhum-card.selected{border-color:var(--gold);background:rgba(200,146,42,0.04);}
+.rh-emoji{font-size:32px;flex-shrink:0;}
+.rh-body{flex:1;min-width:0;}
+.rh-name{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--dark);margin-bottom:3px;}
+.rh-meta{font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.rh-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
+.rh-price{font-family:var(--serif);font-size:22px;color:var(--gold);font-weight:500;}
+.rh-price-sub{font-size:11px;color:var(--muted);}
+.stock-badge{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.stock-num{font-family:var(--serif);font-size:20px;font-weight:500;}
+.stock-num.ok{color:#1A6B3F;}.stock-num.low{color:#C8922A;}.stock-num.out{color:#8B1A1A;}
+.stock-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);}
+.deg-bar{height:3px;background:rgba(200,146,42,0.12);border-radius:2px;margin:8px 0 0;overflow:hidden;}
+.deg-fill{height:100%;background:var(--gold);border-radius:2px;}
+.select-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;font-size:12px;background:var(--white);}
+.rhum-card.selected .select-check{background:var(--gold);border-color:var(--gold);color:var(--dark);}
+
+.pill{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.p-amber{background:rgba(200,146,42,0.12);color:#633806;}
+.p-teal{background:#E1F5EE;color:#085041;}
+.p-coral{background:#FAECE7;color:#712B13;}
+.p-gray{background:#F1EFE8;color:#444441;}
+.p-pink{background:#FBEAF0;color:#72243E;}
+.dispo{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:10px;}
+.dispo.ok{background:rgba(26,107,63,0.1);color:#1A6B3F;}
+.dispo.low{background:rgba(200,146,42,0.12);color:#854F0B;}
+.dispo.out{background:rgba(139,26,26,0.1);color:#8B1A1A;}
+
+/* PANIER */
+.panier-bar{background:var(--dark);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;justify-content:space-between;align-items:center;}
+.panier-bar.visible{display:flex;}
+.panier-info{color:#F5DFA0;font-size:13px;}
+.panier-info strong{font-family:var(--serif);font-size:16px;}
+.btn-commande{background:var(--gold);color:var(--dark);border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);}
+.btn-commande:active{background:var(--amber);}
+
+/* QUANTITE */
+.qte-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.qte-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--white);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dark);}
+.qte-btn:active{background:rgba(200,146,42,0.1);}
+.qte-val{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--dark);min-width:20px;text-align:center;}
+
+/* FORMULAIRE COMMANDE */
+.form-section{background:var(--white);border-radius:14px;border:0.5px solid var(--border);padding:18px;margin-bottom:14px;}
+.form-section h3{font-family:var(--serif);font-size:17px;color:var(--dark);margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.fg label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;font-weight:500;}
+.fg input,.fg textarea{font-family:var(--sans);font-size:15px;border:0.5px solid rgba(107,63,26,0.22);border-radius:8px;padding:10px 12px;background:#FDFAF4;color:var(--dark);width:100%;}
+.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--gold);}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.recap-box{background:rgba(200,146,42,0.06);border:0.5px solid rgba(200,146,42,0.2);border-radius:10px;padding:12px 14px;margin-bottom:14px;}
+.recap-item{display:flex;justify-content:space-between;font-size:13px;color:var(--dark);padding:4px 0;}
+.recap-total{display:flex;justify-content:space-between;font-family:var(--serif);font-size:16px;font-weight:500;padding-top:8px;margin-top:4px;border-top:0.5px solid rgba(200,146,42,0.2);}
+.btn-full{width:100%;padding:13px;font-size:15px;background:var(--gold);color:var(--dark);border:none;border-radius:10px;font-weight:500;cursor:pointer;font-family:var(--sans);}
+.btn-full:active{background:var(--amber);}
+.btn-back{background:none;border:0.5px solid var(--border);color:var(--muted);padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--sans);margin-bottom:12px;}
+
+/* SUCCÈS */
+.success-box{text-align:center;padding:2rem 1rem;}
+.success-icon{font-size:56px;margin-bottom:16px;}
+.success-title{font-family:var(--serif);font-size:22px;color:var(--dark);margin-bottom:8px;}
+.success-sub{font-size:14px;color:var(--muted);line-height:1.6;}
+.btn-retour{margin-top:20px;background:var(--gold);color:var(--dark);border:none;padding:11px 24px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;gap:12px;color:var(--muted);}
+.spinner{width:32px;height:32px;border:2px solid rgba(200,146,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:2rem;color:var(--muted);font-size:13px;}
+
+.footer{text-align:center;padding:24px 16px;color:var(--muted);font-size:11px;border-top:0.5px solid var(--border);margin-top:24px;}
+.footer strong{color:var(--dark);}
+
+.notice{background:rgba(200,146,42,0.08);border:0.5px solid rgba(200,146,42,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--brown,#6B3F1A);margin-bottom:16px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-icon" id="v-icon">🍹</span>
+    <div class="hero-title" id="v-title">Notre Cave à Rhums</div>
+    <div class="hero-sub" id="v-sub">Rhums artisanaux — Production locale</div>
+    <div class="hero-badge"><div class="sync-dot"></div> Stock mis à jour en temps réel</div>
+  </div>
+  <div class="hero-tabs">
+    <button class="hero-tab active" onclick="showTab('catalogue',this)">🥃 Catalogue</button>
+    <button class="hero-tab" onclick="showTab('commande',this)">📦 Passer commande</button>
+  </div>
+  <div class="hero-divider"></div>
+</div>
+
+<div class="content">
+
+  <!-- CATALOGUE -->
+  <div class="tab-section active" id="tab-catalogue">
+    <div id="loading" class="loading"><div class="spinner"></div><span>Chargement…</span></div>
+    <div id="catalogue-content" style="display:none">
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" onclick="filterType('tous',this)">Tous</button>
+      </div>
+      <div class="rhum-list" id="rhum-list"></div>
+    </div>
+  </div>
+
+  <!-- COMMANDE -->
+  <div class="tab-section" id="tab-commande">
+    <div id="commande-loading" class="loading"><div class="spinner"></div><span>Chargement…</span></div>
+
+    <!-- ÉTAPE 1 : Sélection -->
+    <div id="step-selection" style="display:none">
+      <div class="notice">Sélectionnez les rhums et les quantités souhaitées, puis cliquez sur <strong>Continuer</strong>.</div>
+      <div class="rhum-list" id="commande-rhum-list"></div>
+      <div class="panier-bar" id="panier-bar">
+        <div class="panier-info">
+          <div style="font-size:11px;color:rgba(245,223,160,0.5);margin-bottom:2px">Votre sélection</div>
+          <strong id="panier-label">0 article</strong>
+        </div>
+        <button class="btn-commande" onclick="goToForm()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Formulaire -->
+    <div id="step-form" style="display:none">
+      <button class="btn-back" onclick="backToSelection()">← Modifier ma sélection</button>
+
+      <div class="form-section">
+        <h3>Récapitulatif</h3>
+        <div class="recap-box" id="recap-box"></div>
+      </div>
+
+      <div class="form-section">
+        <h3>Vos coordonnées</h3>
+        <div class="fr2">
+          <div class="fg"><label>Prénom *</label><input id="f-prenom" placeholder="Jean"></div>
+          <div class="fg"><label>Nom *</label><input id="f-nom" placeholder="Dupont"></div>
+        </div>
+        <div class="fg"><label>Adresse e-mail *</label><input type="email" id="f-email" placeholder="jean@exemple.com" inputmode="email"></div>
+        <div class="fg"><label>Téléphone</label><input type="tel" id="f-tel" placeholder="+32 470 00 00 00" inputmode="tel"></div>
+        <div class="fg"><label>Adresse postale *</label><input id="f-adresse" placeholder="Rue de la Paix 1"></div>
+        <div class="fr2">
+          <div class="fg"><label>Code postal *</label><input id="f-cp" placeholder="1000" inputmode="numeric"></div>
+          <div class="fg"><label>Ville *</label><input id="f-ville" placeholder="Bruxelles"></div>
+        </div>
+        <div class="fg"><label>Message (optionnel)</label><textarea id="f-message" rows="3" placeholder="Précisions, questions…" style="resize:vertical"></textarea></div>
+      </div>
+
+      <button class="btn-full" onclick="submitCommande()">✓ Envoyer ma commande</button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">Vos données sont uniquement utilisées pour le traitement de votre commande.</div>
+    </div>
+
+    <!-- ÉTAPE 3 : Succès -->
+    <div id="step-success" style="display:none">
+      <div class="success-box">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">Commande envoyée !</div>
+        <div class="success-sub">Merci pour votre commande.<br>Nous vous contacterons rapidement pour confirmer et organiser la livraison.</div>
+        <button class="btn-retour" onclick="resetCommande()">← Retour au catalogue</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Vitrine publique — <strong id="footer-name">Rhums Artisanaux</strong><br>
+  <span id="last-update"></span>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCSg5EehBOw6e23X_ZIWfpvFCXUWpwYw5c",
+  authDomain:"rhums-artisanaux.firebaseapp.com",
+  databaseURL:"https://rhums-artisanaux-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"rhums-artisanaux",
+  storageBucket:"rhums-artisanaux.firebasestorage.app",
+  messagingSenderId:"820033797821",
+  appId:"1:820033797821:web:4d0991294f911dc5b6c1d4"
+});
+
+const db = firebase.database();
+let rhums = {};
+let activeFilter = 'tous';
+let panier = {}; // { rhumId: { nom, qte, prix } }
+let currentTab = 'catalogue';
+
+const EM = {"Blanc":"🫙","Vieux":"🪵","Ambré":"🥃","Arrangé":"🍋","Épicé":"🌶️"};
+const PL = {"Blanc":"p-gray","Vieux":"p-amber","Ambré":"p-coral","Arrangé":"p-teal","Épicé":"p-pink"};
+
+// Config Firebase
+db.ref('config').on('value', snap => {
+  const cfg = snap.val() || {};
+  if(cfg.appname){document.getElementById('v-title').textContent=cfg.appname;document.getElementById('footer-name').textContent=cfg.appname;document.title=cfg.appname+' — Vitrine';}
+  if(cfg.appsub) document.getElementById('v-sub').textContent=cfg.appsub;
+  if(cfg.emoji)  document.getElementById('v-icon').textContent=cfg.emoji;
+  const root=document.documentElement;
+  if(cfg.gold){root.style.setProperty('--gold',cfg.gold);root.style.setProperty('--amber',cfg.gold);}
+  if(cfg.dark) root.style.setProperty('--dark',cfg.dark);
+  if(cfg.cream) root.style.setProperty('--cream',cfg.cream);
+});
+
+// Rhums en temps réel
+db.ref('rhums').on('value', snap => {
+  rhums = snap.val() || {};
+  // Catalogue
+  document.getElementById('loading').style.display='none';
+  document.getElementById('catalogue-content').style.display='block';
+  document.getElementById('last-update').textContent='Dernière mise à jour : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  buildFilters();
+  renderCatalogue();
+  // Commande
+  document.getElementById('commande-loading').style.display='none';
+  document.getElementById('step-selection').style.display='block';
+  renderCommandeList();
+});
+
+function rhumsArr(){ return Object.entries(rhums).map(([k,v])=>({_id:k,...v})).sort((a,b)=>a.nom.localeCompare(b.nom)); }
+function eur(v){ return Number(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}); }
+
+// ── TABS ──────────────────────────────────────────────────
+function showTab(tab, btn){
+  currentTab = tab;
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.hero-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── CATALOGUE ─────────────────────────────────────────────
+function buildFilters(){
+  const types=[...new Set(rhumsArr().map(r=>r.type))];
+  const bar=document.getElementById('filter-bar');
+  bar.innerHTML=`<button class="filter-btn ${activeFilter==='tous'?'active':''}" onclick="filterType('tous',this)">Tous</button>`;
+  types.forEach(t=>{bar.innerHTML+=`<button class="filter-btn ${activeFilter===t?'active':''}" onclick="filterType('${t}',this)">${EM[t]||''} ${t}</button>`;});
+}
+
+function filterType(type,btn){
+  activeFilter=type;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCatalogue();
+}
+
+function renderCatalogue(){
+  let list=rhumsArr();
+  if(activeFilter!=='tous') list=list.filter(r=>r.type===activeFilter);
+  if(list.length===0){document.getElementById('rhum-list').innerHTML='<div class="empty">Aucun rhum disponible pour le moment.</div>';return;}
+  document.getElementById('rhum-list').innerHTML=list.map(r=>{
+    const s=r.stock||0;
+    const sc=s===0?'out':s<=5?'low':'ok';
+    const dt=s===0?'Épuisé':s<=5?'Stock limité':'Disponible';
+    return `<div class="rhum-card ${s===0?'out-of-stock':''}">
+      <div class="rh-emoji">${EM[r.type]||'🍹'}</div>
+      <div class="rh-body">
+        <div class="rh-name">${r.nom}</div>
+        <div class="rh-meta"><span class="pill ${PL[r.type]||'p-gray'}">${r.type}</span>${r.degre?`<span>${r.degre}° alc.</span>`:''} ${r.millesime?`<span>· ${r.millesime}</span>`:''}<span class="dispo ${sc}">${dt}</span></div>
+        <div class="deg-bar"><div class="deg-fill" style="width:${Math.min(r.degre||40,90)/90*100}%"></div></div>
+        <div class="rh-bottom" style="margin-top:10px">
+          <div><div class="rh-price">${eur(r.prix)}</div><div class="rh-price-sub">par bouteille</div></div>
+          <div class="stock-badge"><div class="stock-num ${sc}">${s}</div><div class="stock-label">en stock</div></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── COMMANDE — Sélection ──────────────────────────────────
+function renderCommandeList(){
+  const list=rhumsArr();
+  document.getElementById('commande-rhum-list').innerHTML=list.map(r=>{
+    const s=r.stock||0;
+    const inPanier=panier[r._id];
+    const qte=inPanier?inPanier.qte:0;
+    const sc=s===0?'out':s<=5?'low':'ok';
+    const disabled=s===0?'out-of-stock':'';
+    return `<div class="rhum-card ${disabled} ${qte>0?'selected':''}" id="card-${r._id}">
+      <div class="rh-emoji">${EM[r.type]||'🍹'}</div>
+      <div class="rh-body">
+        <div class="rh-name">${r.nom}</div>
+        <div class="rh-meta"><span class="pill ${PL[r.type]||'p-gray'}">${r.type}</span>${r.degre?`<span>${r.degre}°</span>`:''}<span class="dispo ${sc}">${s===0?'Épuisé':s<=5?'Stock limité':'Disponible'}</span></div>
+        <div class="rh-bottom" style="margin-top:8px">
+          <div class="rh-price" style="font-size:18px">${eur(r.prix)}</div>
+          ${s>0?`<div class="qte-row">
+            <button class="qte-btn" onclick="changeQte('${r._id}','${r.nom}',${r.prix},${s},-1)">−</button>
+            <div class="qte-val" id="qte-${r._id}">${qte}</div>
+            <button class="qte-btn" onclick="changeQte('${r._id}','${r.nom}',${r.prix},${s},1)">+</button>
+          </div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updatePanier();
+}
+
+function changeQte(id,nom,prix,maxStock,delta){
+  if(!panier[id]) panier[id]={nom,qte:0,prix};
+  panier[id].qte=Math.max(0,Math.min(panier[id].qte+delta,maxStock));
+  if(panier[id].qte===0) delete panier[id];
+  // Mettre à jour affichage qte
+  const el=document.getElementById('qte-'+id);
+  if(el) el.textContent=panier[id]?panier[id].qte:0;
+  // Sélection visuelle
+  const card=document.getElementById('card-'+id);
+  if(card) card.classList.toggle('selected',!!(panier[id]&&panier[id].qte>0));
+  updatePanier();
+}
+
+function updatePanier(){
+  const items=Object.values(panier);
+  const totalQte=items.reduce((s,i)=>s+i.qte,0);
+  const totalEur=items.reduce((s,i)=>s+i.qte*i.prix,0);
+  const bar=document.getElementById('panier-bar');
+  if(totalQte>0){
+    bar.classList.add('visible');
+    document.getElementById('panier-label').textContent=`${totalQte} btl · ${eur(totalEur)}`;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+// ── COMMANDE — Formulaire ─────────────────────────────────
+function goToForm(){
+  if(Object.keys(panier).length===0){alert('Sélectionnez au moins un rhum.');return;}
+  // Récapitulatif
+  const items=Object.entries(panier);
+  const total=items.reduce((s,[,i])=>s+i.qte*i.prix,0);
+  document.getElementById('recap-box').innerHTML=
+    items.map(([,i])=>`<div class="recap-item"><span>${i.nom} × ${i.qte}</span><span>${eur(i.qte*i.prix)}</span></div>`).join('')+
+    `<div class="recap-total"><span>Total estimé</span><span style="color:var(--gold)">${eur(total)}</span></div>`;
+  document.getElementById('step-selection').style.display='none';
+  document.getElementById('step-form').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function backToSelection(){
+  document.getElementById('step-form').style.display='none';
+  document.getElementById('step-selection').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function submitCommande(){
+  const prenom=document.getElementById('f-prenom').value.trim();
+  const nom=document.getElementById('f-nom').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const adresse=document.getElementById('f-adresse').value.trim();
+  const cp=document.getElementById('f-cp').value.trim();
+  const ville=document.getElementById('f-ville').value.trim();
+  if(!prenom||!nom||!email||!adresse||!cp||!ville){alert('Veuillez remplir tous les champs obligatoires (*).');return;}
+  if(!email.includes('@')){alert('Adresse e-mail invalide.');return;}
+
+  const items=Object.entries(panier).map(([id,i])=>({rhumId:id,nom:i.nom,qte:i.qte,prix:i.prix,sous_total:i.qte*i.prix}));
+  const total=items.reduce((s,i)=>s+i.sous_total,0);
+
+  const commande={
+    client:{prenom,nom,email,tel:document.getElementById('f-tel').value.trim(),adresse,cp,ville},
+    message:document.getElementById('f-message').value.trim(),
+    articles:items,
+    total,
+    statut:'nouvelle',
+    date:new Date().toISOString().slice(0,10),
+    createdAt:new Date().toISOString()
+  };
+
+  db.ref('commandes').push(commande)
+    .then(()=>{
+      document.getElementById('step-form').style.display='none';
+      document.getElementById('step-success').style.display='block';
+      window.scrollTo(0,0);
+    })
+    .catch(e=>alert('Erreur lors de l\'envoi : '+e.message));
+}
+
+function resetCommande(){
+  panier={};
+  document.getElementById('step-success').style.display='none';
+  document.getElementById('step-selection').style.display='block';
+  // Reset formulaire
+  ['f-prenom','f-nom','f-email','f-tel','f-adresse','f-cp','f-ville','f-message'].forEach(id=>document.getElementById(id).value='');
+  renderCommandeList();
+  // Revenir au catalogue
+  document.querySelectorAll('.hero-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  document.getElementById('tab-commande').classList.remove('active');
+  document.getElementById('tab-catalogue').classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
